@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">FirstApp</string>
+    <string name="title">Electric Car</string>
+    <string name="carros">Carros</string>
+    <string name="favoritos">Favoritos</string>
+    <string name="preco">Preço</string>
+    <string name="preco_value">300.000,00</string>
+    <string name="bateria">Bateria</string>
+    <string name="bateria_value">R$ 96 kWh</string>
+    <string name="potencia">Potência</string>
+    <string name="potencia_value">300kWh</string>
+    <string name="recarga">Recarga</string>
+    <string name="recarga_value">23 min</string>
+    <string name="preco_kwh">Preço Kwh</string>
+    <string name="km_percorrido">Km Percorrido</string>
+    <string name="calcular">Calcular</string>
+    <string name="calcular_autonomia">Calcular Autonomia</string>
+
+</resources>
