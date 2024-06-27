@@ -7,7 +7,7 @@ object CarFactory {
 
     val list = listOf<Carro>(
         Carro(
-            id = ,
+            id = 1 ,
             preco = "R$ 300.000,00",
             potencia = "200cv",
             recarga = "30 min",
@@ -15,7 +15,7 @@ object CarFactory {
             urlPhoto = "www.google.com.br"
         ),
         Carro(
-            id = UUID.randomUUID(),
+            id = 2,
             preco = "R$ 250.000,00",
             potencia = "180cv",
             recarga = "50 min",
