@@ -1,5 +1,6 @@
-package edu.wearedev.firstapp.presentation
+package edu.wearedev.firstapp.ui
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -7,6 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import edu.wearedev.firstapp.R
+import java.net.HttpURLConnection
+import java.net.URL
 
 class CalcularAutonomiaActivity : AppCompatActivity() {
 
@@ -52,4 +55,6 @@ class CalcularAutonomiaActivity : AppCompatActivity() {
         resultado.text = result.toString()
 
     }
+
+
 }
