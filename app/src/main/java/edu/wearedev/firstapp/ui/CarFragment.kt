@@ -1,7 +1,11 @@
 package edu.wearedev.firstapp.ui
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -10,6 +14,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -30,6 +38,9 @@ import java.util.zip.Inflater
 class CarFragment: Fragment() {
     lateinit var fabCalcular : FloatingActionButton
     lateinit var listaCarros : RecyclerView
+    lateinit var progress: ProgressBar
+    lateinit var noInternetImage: ImageView
+    lateinit var noInternetText: TextView
 
     var carrosArray: ArrayList<Carro> = ArrayList()
 
@@ -43,21 +54,45 @@ class CarFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        callService()
         setupView(view)
         setupListeners()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if(checkForInternet(context)){
+            callService()
+        } else {
+            emptyState()
+        }
+    }
+
+    fun emptyState(){
+        progress.isVisible = false
+        listaCarros.isVisible = false
+        noInternetImage.isVisible = true
+        noInternetText.isVisible = true
     }
 
     fun setupView(view: View){
         view.apply{
             fabCalcular = findViewById(R.id.fab_calcular)
             listaCarros = findViewById(R.id.rv_lista_carros)
+            progress = findViewById(R.id.pb_loader)
+            noInternetText = findViewById(R.id.tv_no_wifi)
+            noInternetImage = findViewById(R.id.iv_empty_state)
         }
     }
 
     fun setupList(){
-        var adapter = CarAdapter(carrosArray)
-        listaCarros.adapter = adapter
+        var carroAdapter = CarAdapter(carrosArray)
+
+        listaCarros.apply{
+
+        visibility = View.VISIBLE
+        adapter = carroAdapter
+        }
     }
 
     fun setupListeners(){
@@ -69,7 +104,31 @@ class CarFragment: Fragment() {
 
     fun callService (){
         val urlBase = "https://igorbag.github.io/cars-api/cars.json"
+        progress.isVisible = true
         MyTask().execute(urlBase)
+
+    }
+
+    fun checkForInternet(context: Context?) :Boolean {
+        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+           val network = connectivityManager.activeNetwork ?: return false
+
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+            return when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                else -> false
+
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            return networkInfo.isConnected
+        }
     }
 
 
@@ -77,6 +136,7 @@ class CarFragment: Fragment() {
 
         override fun onPreExecute() {
             super.onPreExecute()
+            progress.isVisible = true
         }
 
         override fun doInBackground(vararg url: String?): String {
@@ -88,9 +148,21 @@ class CarFragment: Fragment() {
                 urlConnection = urlBase.openConnection() as HttpURLConnection
                 urlConnection.connectTimeout = 6000
                 urlConnection.readTimeout = 6000
+                urlConnection.setRequestProperty(
+                    "Accept",
+                    "application/json"
+                )
 
-                var response = urlConnection.inputStream.bufferedReader().use { it.readText() }
-                publishProgress(response)
+                val responseCode = urlConnection.responseCode
+
+                if(responseCode == HttpURLConnection.HTTP_OK){
+                    var response = urlConnection.inputStream.bufferedReader().use { it.readText() }
+                    publishProgress(response)
+                } else {
+                    Log.e("Error", "Serviço não disponível")
+                }
+
+
             } catch (ex: Exception){
                 Log.e("Error", "Erro ao realizar conexão")
             } finally {
@@ -135,7 +207,9 @@ class CarFragment: Fragment() {
 
                     Log.d("model -> ", model.toString())
                 }
-
+                progress.isVisible = false
+                noInternetImage.isVisible = false
+                noInternetText.isVisible = false
                 setupList()
 
             } catch (ex: Exception){
