@@ -9,4 +9,5 @@ data class Carro(
     val potencia: String,
     val recarga: String,
     val urlPhoto: String,
+    var isFavorite: Boolean
 )

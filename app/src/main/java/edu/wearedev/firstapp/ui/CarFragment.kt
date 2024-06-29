@@ -102,7 +102,7 @@ class CarFragment: Fragment() {
 
     fun setupRetrofit(){
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://igorbag.github.io/cars-api/cars.json")
+            .baseUrl("https://igorbag.github.io/cars-api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -127,12 +127,15 @@ class CarFragment: Fragment() {
     }
 
     fun setupList(lista: List<Carro>){
-        var carroAdapter = CarAdapter(carrosArray)
+        val carroAdapter = CarAdapter(lista)
+            listaCarros.apply{
 
-        listaCarros.apply{
+            visibility = View.VISIBLE
+            adapter = carroAdapter
+        }
 
-        visibility = View.VISIBLE
-        adapter = carroAdapter
+        carroAdapter.carItemListener = { carro ->
+           val bateria = carro.bateria
         }
     }
 
@@ -233,14 +236,16 @@ class CarFragment: Fragment() {
                     val urlPhoto = jsonArray.getJSONObject(i).getString("urlPhoto")
 
 
+
+
                     val model = Carro(
                         id = id.toInt(),
                         preco = preco,
                         bateria = bateria,
                         potencia = potencia,
                         recarga = recarga,
-                        urlPhoto = urlPhoto
-
+                        urlPhoto = urlPhoto,
+                        isFavorite = false
                     )
 
                     carrosArray.add(model)
@@ -256,25 +261,6 @@ class CarFragment: Fragment() {
             } catch (ex: Exception){
         Log.e("Erro", ex.message.toString())
             }
-        }
-
-        fun streamToString(inputStream: InputStream) : String {
-            var bufferReader = BufferedReader(InputStreamReader(inputStream))
-            var line: String
-            var result = ""
-
-            try {
-                do {
-                    line = bufferReader.readLine()
-                    line?.let {
-                        result += line
-                    }
-                } while (line != null)
-            }catch (ex: Exception) {
-                Log.e("Erro", "Erro ao parcelar o Stream")
-            }
-
-            return result
         }
     }
 }
